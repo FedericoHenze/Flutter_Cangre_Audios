@@ -20,84 +20,73 @@ class MyApp extends StatelessWidget {
           title: Text("Audio"),
         ),
         body:Center(
-          child:  RoundButton(),
+          child: Column(
+            children: <Widget>[
+              RecordButton(),
+              ShareButton(),
+              //ActionButton(),
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-class RoundButton extends StatefulWidget {
+class ShareButton extends StatefulWidget {
 
   @override
-  RoundButtonState createState() {
-    return new RoundButtonState();
+  State<StatefulWidget> createState() {
+    return ShareButtonState();
   }
 }
 
-class RoundButtonState extends State<RoundButton> {
-
-  var flutterSound = new FlutterSound();
-  String audioPath;
-  var startRecording = false;
-  var recordAvailable = false;
+class ShareButtonState extends State<ShareButton> {
 
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
-    return AspectRatio(
-      aspectRatio: 1,
-      child: Column(
-        children: <Widget>[
-          Expanded (
-            child: FittedBox(
-              fit: BoxFit.fill,
-              child: FlatButton(
-                shape: CircleBorder(),
-                onPressed: () {
-                  setState(() {
-                    this.recordAvailable=true;
-                    this.startRecording = !this.startRecording;
-                  });
-                  this._handleRecording();
-                },
-                color: this.startRecording ? Colors.red : Colors.green,
-                child: Text(
-                  this.startRecording ? 'Stop' : 'Record',
-                  style: TextStyle(
-                    fontSize: 8,
-                  ),
-                ),
-
-              ),
-            ),
-          ),
-          Visibility(
-            visible: !this.startRecording && this.recordAvailable,
-            child: Expanded (
-              child: FittedBox(
-                fit: BoxFit.fill,
-                child: FlatButton(
-                  shape: CircleBorder(),
-                  onPressed: () => this._share(),
-                  color: Colors.orange,
-                  child: Text(
-                    'Share',
-                    style: TextStyle(
-                      fontSize: 8,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
+    return ActionButton(
+      title: 'SHARE',
+      color: Colors.orange,
+      action: (){this._share();},
     );
   }
 
-  void _handleRecording() {
-    startRecording ? this._recordAudio() : this._stopRecordingAudio();
+  void _share() async {
+    Directory dir = await getApplicationDocumentsDirectory();
+    File testFile = new File("${dir.path}/sound.m4a");
+    if (!await testFile.exists()) {
+      await testFile.create(recursive: true);
+      testFile.writeAsStringSync("test for share documents file");
+    }
+    print('shared dialog open');
+    ShareExtend.share(testFile.path, "file");
+  }
+}
+
+class RecordButton extends StatefulWidget {
+
+  @override
+  State<StatefulWidget> createState() {
+    return RecordButtonState();
+  }
+}
+
+class RecordButtonState extends State<RecordButton> {
+
+  var flutterSound = new FlutterSound();
+  String audioPath;
+  var startRecording = true;
+
+  @override
+  Widget build(BuildContext context) {
+    // TODO: implement build
+    return ActionButton(
+      title: this.startRecording ? 'RECORD' : 'STOP',
+      color: this.startRecording ? Colors.green : Colors.red,
+      action: this.startRecording ? (){this._recordAudio();} : (){_stopRecordingAudio();},
+    );
   }
 
   void _recordAudio() async {
@@ -112,16 +101,51 @@ class RoundButtonState extends State<RoundButton> {
     print('stopRecorder: $result');
     this.audioPath = result;
   }
+}
 
-  void _share() async {
-    Directory dir = await getApplicationDocumentsDirectory();
-    File testFile = new File("${dir.path}/sound.m4a");
-    if (!await testFile.exists()) {
-      await testFile.create(recursive: true);
-      testFile.writeAsStringSync("test for share documents file");
-    }
-    print('shared dialog open');
-    ShareExtend.share(testFile.path, "file");
+class ActionButton extends StatefulWidget {
+
+  final String title;
+  final VoidCallback action;
+  final MaterialColor color;
+
+  ActionButton({this.title, this.color, this.action});
+
+  @override
+  ActionButtonState createState() {
+    return new ActionButtonState(this.title, this.action, this.color);
+  }
+}
+
+class ActionButtonState extends State<ActionButton> {
+
+  final String title;
+  final VoidCallback action;
+  final MaterialColor color;
+
+  ActionButtonState(this.title, this.action, this.color);
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: AspectRatio(
+          aspectRatio: 1,
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: FlatButton(
+              onPressed: this.action,
+              child: Text(this.title,
+                style: TextStyle(
+                  fontSize: 30,
+                ),
+              ),
+              color: this.color,
+              shape: CircleBorder(),
+            ),
+          )
+      ),
+    );
   }
 
 }
+
