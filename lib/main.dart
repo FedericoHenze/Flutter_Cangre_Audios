@@ -13,18 +13,17 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Cangre Audios',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.red,
       ),
       home: Scaffold(
         appBar: AppBar(
-          title: Text("Audio"),
+          title: Text("Cangre"),
         ),
+        floatingActionButton: ShareButton(),
         body: Center(
           child: Column(
             children: <Widget>[
               RecordButton(),
-              ShareButton(),
-              //ActionButton(),
             ],
           ),
         ),
@@ -48,10 +47,11 @@ class RecordButtonState extends State<RecordButton> {
   @override
   Widget build(BuildContext context) {
     return ActionButton(
-      title: _isRecording ? 'STOP' : 'RECORD',
-      color: _isRecording ? Colors.red : Colors.green,
       action: _isRecording ? () => _stopRecordingAudio() : () => _recordAudio(),
-      isVisible: true,
+      icon: Icon(
+        _isRecording ? Icons.stop : Icons.keyboard_voice,
+        size: 200,
+      ),
     );
   }
 
@@ -86,13 +86,9 @@ class ShareButtonState extends State<ShareButton> {
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
-    return ActionButton(
-      title: 'SHARE',
-      color: Colors.orange,
-      action: () {
-        this._share();
-      },
-      isVisible: true,
+    return FloatingActionButton(
+      child: Icon(Icons.share),
+      onPressed: () => _share(),
     );
   }
 
@@ -122,35 +118,23 @@ class ShareButtonState extends State<ShareButton> {
 }
 
 class ActionButton extends StatelessWidget {
-  final String title;
   final VoidCallback action;
-  final MaterialColor color;
-  final bool isVisible;
+  final Icon icon;
 
-  ActionButton({this.title, this.color, this.action, this.isVisible});
+  ActionButton({this.action, this.icon});
 
   @override
   Widget build(BuildContext context) {
-    return Visibility(
-      visible: this.isVisible,
-      child: Expanded(
+    return Expanded(
         child: AspectRatio(
-            aspectRatio: 1,
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: FlatButton(
-                onPressed: this.action,
-                child: Text(
-                  this.title,
-                  style: TextStyle(
-                    fontSize: 30,
-                  ),
-                ),
-                color: this.color,
-                shape: CircleBorder(),
-              ),
-            )),
+      aspectRatio: 1,
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: FloatingActionButton(
+          onPressed: action,
+          child: icon,
+        ),
       ),
-    );
+    ));
   }
 }
