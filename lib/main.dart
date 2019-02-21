@@ -63,6 +63,11 @@ class RecordButtonState extends State<RecordButton> {
     setState(() {
       _isRecording = true;
     });
+    Scaffold.of(context).showSnackBar(new SnackBar(
+      content: new Text("Recording..."),
+      backgroundColor: Colors.red,
+      duration: Duration(seconds: 1),
+    ));
   }
 
   void _stopRecordingAudio() async {
@@ -72,6 +77,11 @@ class RecordButtonState extends State<RecordButton> {
     this.setState(() {
       _isRecording = false;
     });
+    Scaffold.of(context).showSnackBar(new SnackBar(
+      content: new Text("Record stopped"),
+      backgroundColor: Colors.red,
+      duration: Duration(seconds: 1),
+    ));
   }
 }
 
@@ -85,7 +95,6 @@ class ShareButton extends StatefulWidget {
 class ShareButtonState extends State<ShareButton> {
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return FloatingActionButton(
       child: Icon(Icons.share),
       onPressed: () => _share(),
